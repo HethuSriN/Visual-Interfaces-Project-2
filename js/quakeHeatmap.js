@@ -74,7 +74,7 @@ function renderHeatmap(data, binningInterval) {
         .attr("height", height)
         .attr("fill", d => colorScale(d[1].count))
         .on("mouseover", function (event, d) {
-            d3.select("#tooltip")
+            d3.select("#HeatMap-tooltip")
                 .style("display", "block")
                 .html(`
                     <strong>${d[0]}</strong><br>
@@ -86,11 +86,11 @@ function renderHeatmap(data, binningInterval) {
                 .style("top", (event.pageY - 40) + "px"); // Correct position logic
         })
         .on("mousemove", function(event) {
-            d3.select("#tooltip")
+            d3.select("#HeatMap-tooltip")
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 40) + "px"); // Dynamic position update
         })
-        .on("mouseout", () => d3.select("#tooltip").style("display", "none"));
+        .on("mouseout", () => d3.select("#HeatMap-tooltip").style("display", "none"));
 
     // Axes
     chart.append("g")
