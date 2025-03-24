@@ -5,13 +5,12 @@
     <link rel="icon" href="data:;base64,iVBORwOKGO=" />
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/style.css">
-
-    
 </head>
 
 <body>
     <h1>🌍 Earthquake Data Visualization</h1>
 
+    <!-- Map Controls -->
     <div id="map-controls">
         <label for="map-dropdown"><strong>Select Map Background:</strong></label>
         <select id="map-dropdown">
@@ -23,25 +22,58 @@
         </select>
     </div>
 
+    <!-- Earthquake Map -->
     <div id="my-map"></div>
 
-    <div id="controls">
-        <label for="binning-select">Select Binning Interval:</label>
-        <select id="binning-select">
-            <option value="day">Daily</option>
-            <option value="week">Weekly</option>
-            <option value="month" selected>Monthly</option>
-        </select>
-    </div>
+   <div id = "charts-container">
 
-    <div id="chart-container">
-            <svg id="heatmap"></svg>
-            <div id="tooltip" class="tooltip"></div>
+     <!-- Visualizations Container -->
+     <div id="chart-box">
+        <!-- Heatmap and Line Chart Controls -->
+   <div id="controls">
+       <label for="binning-select">Select Binning Interval:</label>
+       <select id="binning-select">
+           <option value="day">Daily</option>
+           <option value="week">Weekly</option>
+           <option value="month" selected>Monthly</option>
+           <option value="year">Yearly</option> <!-- Added Yearly Bin Option -->
+       </select>
+   </div>
+       <!-- Heatmap -->
+       <svg id="heatmap"></svg>
+       <div id="tooltip" class="tooltip"></div>
 
-        <svg id="line-chart"></svg>
-        <div id="chart-tooltip" class="chart-tooltip"></div>
-    </div>
+       <!-- Line Chart -->
+       <svg id="line-chart"></svg>
+       <div id="chart-tooltip" class="chart-tooltip"></div>
+   </div>
+<div id = "chart-box">
+   <div id="controls">
+       <label for="view-select"><strong>View Earthquake Data By:</strong></label>
+       <select id="view-select">
+           <option value="magnitude">Magnitude</option>
+           <option value="duration">Duration</option>
+           <option value="depth">Depth</option>
+       </select>
+   </div>
+   
+   <svg id="quake-chart"></svg>
+   
+   <div id="tooltip" class="tooltip" style="
+       position: absolute;
+       display: none;
+       background: #fff;
+       border: 1px solid #ccc;
+       border-radius: 4px;
+       padding: 8px;
+       box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+       pointer-events: none;
+   "></div>
+   </div>
 
+   </div>
+
+    <!-- Script Files -->
     <script src="js/d3.v6.min.js"></script>
     <script src="js/leaflet.js"></script>
     <script src="js/main.js"></script>
