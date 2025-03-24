@@ -122,3 +122,83 @@ function renderChart(data, viewType) {
         .attr("transform", "rotate(-90)")
         .text("Frequency");
 }
+
+function renderMagnitudeChart(data) {
+    const svg = d3.select("#quake-chart");
+    svg.selectAll("*").remove();
+
+    const margin = { top: 40, right: 40, bottom: 70, left: 70 };
+    const width = 800 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const chart = svg
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    // Binning by Magnitude
+    const magBins = d3.rollups(
+        data,
+        v => v.length,
+        d => Math.floor(d.mag) // Bin magnitudes by whole numbers (e.g., 5.0, 6.0)
+    );
+
+    const xScale = d3.scaleBand()
+        .domain(magBins.map(d => d[0])) 
+        .range([0, width])
+        .padding(0.2);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(magBins, d => d[1])])
+        .nice()
+        .range([height, 0]);
+
+    const colorScale = d3.scaleSequential(d3.interpolateBlues)
+        .domain([0, d3.max(magBins, d => d[1])]);
+
+    // Draw Bars
+    chart.selectAll(".bar")
+        .data(magBins)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", d => xScale(d[0]))
+        .attr("y", d => yScale(d[1]))
+        .attr("width", xScale.bandwidth())
+        .attr("height", d => height - yScale(d[1]))
+        .attr("fill", d => colorScale(d[1]))
+        .on("mouseover", function (event, d) {
+            d3.select("#tooltip")
+                .style("display", "block")
+                .html(`
+                    <strong>Magnitude:</strong> ${d[0]}<br>
+                    <strong>Earthquakes:</strong> ${d[1]}
+                `)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 40) + "px");
+        })
+        .on("mouseout", () => d3.select("#tooltip").style("display", "none"));
+
+    // Axes
+    chart.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(xScale));
+
+    chart.append("g")
+        .call(d3.axisLeft(yScale));
+
+    // Axis Labels
+    chart.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 20)
+        .style("text-anchor", "middle")
+        .text("Magnitude");
+
+    chart.append("text")
+        .attr("x", -height / 2)
+        .attr("y", -50)
+        .attr("transform", "rotate(-90)")
+        .style("text-anchor", "middle")
+        .text("Frequency");
+}
+
