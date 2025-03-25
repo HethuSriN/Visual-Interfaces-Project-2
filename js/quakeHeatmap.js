@@ -70,16 +70,21 @@ function renderHeatmap(data, binningInterval) {
         .attr("height", d => height - yScale(d[1]))
         .attr("fill", d => colorScale(d[1]))
         .on("mouseover", function (event, d) {
-            d3.select("#tooltip")
+            d3.select("#HeatMap-tooltip")
                 .style("display", "block")
                 .html(`
                     <strong>${d[0]}</strong><br>
                     Earthquakes: ${d[1]}
                 `)
                 .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 40) + "px");
+                .style("top", (event.pageY - 40) + "px"); // Correct position logic
         })
-        .on("mouseout", () => d3.select("#tooltip").style("display", "none"));
+        .on("mousemove", function(event) {
+            d3.select("#tooltip")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 40) + "px"); // Dynamic position update
+        })
+        .on("mouseout", () => d3.select("#HeatMap-tooltip").style("display", "none"));
 
     // Brushing for Timeline Interaction
 const brush = d3.brushX()
