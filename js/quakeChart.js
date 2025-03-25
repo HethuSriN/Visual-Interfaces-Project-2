@@ -168,7 +168,7 @@ function renderMagnitudeChart(data) {
         .attr("height", d => height - yScale(d[1]))
         .attr("fill", d => colorScale(d[1]))
         .on("mouseover", function (event, d) {
-            d3.select("#tooltip")
+            d3.select("#chart-tooltip")
                 .style("display", "block")
                 .html(`
                     <strong>Magnitude:</strong> ${d[0]}<br>
@@ -177,7 +177,7 @@ function renderMagnitudeChart(data) {
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 40) + "px");
         })
-        .on("mouseout", () => d3.select("#tooltip").style("display", "none"));
+        .on("mouseout", () => d3.select("#chart-tooltip").style("display", "none"));
 
     // Axes
     chart.append("g")

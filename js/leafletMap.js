@@ -142,7 +142,7 @@ class LeafletMap {
 
                           })
     
-    //handler here for updating the map, as you zoom in and out           
+    //handler here for updating the map, as you zoom in and out          
     vis.theMap.on("zoomend", function(){
       vis.updateVis();
     });

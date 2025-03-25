@@ -80,7 +80,7 @@ function renderHeatmap(data, binningInterval) {
                 .style("top", (event.pageY - 40) + "px"); // Correct position logic
         })
         .on("mousemove", function(event) {
-            d3.select("#tooltip")
+            d3.select("#HeatMap-tooltip")
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 40) + "px"); // Dynamic position update
         })

@@ -6,6 +6,7 @@ Promise.all([
   d3.csv('data/2022_10-2022_01.csv')
 ]).then(([data1, data2, data3, data4, data5]) => {
   
+  // Combine datasets (append data)
   const combinedData = [...data1, ...data2, ...data3, ...data4, ...data5];
 
   combinedData.forEach(d => {  
