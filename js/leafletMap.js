@@ -82,6 +82,24 @@ class LeafletMap {
             magnitude >= 3.0 ? "#d9ef8b" :  // Minor (Light Green)
                                 "#91cf60";   // Weak (Green)
     };
+    // Brushing feature for geographic selection
+  const brush = L.rectangle([[35, -120], [45, -100]], {
+    color: "#0078A8",
+    weight: 2,
+    fillOpacity: 0.2
+  }).addTo(vis.theMap);
+
+  brush.on('edit', function (e) {
+    const bounds = e.target.getBounds();
+    const filteredData = vis.data.filter(d =>
+        d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
+        d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
+  );
+
+    renderFilteredHeatmap(filteredData);  // Update heatmap based on map selection
+    renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
+  });
+
 
     //these are the city locations, displayed as a set of dots 
     vis.Dots = vis.svg.selectAll('circle')
@@ -124,7 +142,7 @@ class LeafletMap {
 
                           })
     
-    //handler here for updating the map, as you zoom in and out           
+    //handler here for updating the map, as you zoom in and out          
     vis.theMap.on("zoomend", function(){
       vis.updateVis();
     });
@@ -146,4 +164,22 @@ class LeafletMap {
     let vis = this;
  
   }
+  
+  updateMap(filteredData) {
+    let vis = this;
+
+    // Clear previous points
+    vis.svg.selectAll('circle').remove();
+
+    // Add filtered data
+    vis.Dots = vis.svg.selectAll('circle')
+        .data(filteredData)
+        .join('circle')
+        .attr("fill", d => vis.getColor(d.mag))
+        .attr("stroke", "black")
+        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+        .attr("r", d => Math.max(2, d.mag * 1.5));
+}
+
 }

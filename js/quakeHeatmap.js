@@ -27,11 +27,11 @@ Promise.all([
 // Function to render the heatmap
 function renderHeatmap(data, binningInterval) {
     const svg = d3.select("#heatmap");
-    svg.selectAll("*").remove(); // Clear previous chart
+    svg.selectAll("*").remove();
 
-    const margin = { top: 40, right: 40, bottom: 100, left: 60 },
-          width = 800 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+    const margin = { top: 40, right: 40, bottom: 100, left: 70 };
+    const width = 800 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
     const chart = svg
         .attr("width", width + margin.left + margin.right)
@@ -42,11 +42,7 @@ function renderHeatmap(data, binningInterval) {
     // Time binning logic
     const binnedData = d3.rollups(
         data,
-        v => ({
-            count: v.length,
-            minMagnitude: d3.min(v, d => +d.mag), 
-            maxMagnitude: d3.max(v, d => +d.mag)
-        }),
+        v => v.length,
         d => d3.timeFormat(getTimeFormat(binningInterval))(d.date)
     );
 
@@ -56,12 +52,12 @@ function renderHeatmap(data, binningInterval) {
         .padding(0.1);
 
     const yScale = d3.scaleLinear()
-        .domain([0, d3.max(binnedData, d => d[1].count)])
+        .domain([0, d3.max(binnedData, d => d[1])])
         .nice()
         .range([height, 0]);
 
     const colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
-        .domain([0, d3.max(binnedData, d => d[1].count)]);
+        .domain([0, d3.max(binnedData, d => d[1])]);
 
     // Draw Heatmap Cells
     chart.selectAll(".cell")
@@ -69,18 +65,16 @@ function renderHeatmap(data, binningInterval) {
         .join("rect")
         .attr("class", "cell")
         .attr("x", d => xScale(d[0]))
-        .attr("y", 0)
+        .attr("y", d => yScale(d[1]))
         .attr("width", xScale.bandwidth())
-        .attr("height", height)
-        .attr("fill", d => colorScale(d[1].count))
+        .attr("height", d => height - yScale(d[1]))
+        .attr("fill", d => colorScale(d[1]))
         .on("mouseover", function (event, d) {
             d3.select("#HeatMap-tooltip")
                 .style("display", "block")
                 .html(`
                     <strong>${d[0]}</strong><br>
-                    Earthquakes: ${d[1].count} <br>
-                    Min Magnitude: ${d[1].minMagnitude.toFixed(2)}<br>
-                    Max Magnitude: ${d[1].maxMagnitude.toFixed(2)}
+                    Earthquakes: ${d[1]}
                 `)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 40) + "px"); // Correct position logic
@@ -92,16 +86,44 @@ function renderHeatmap(data, binningInterval) {
         })
         .on("mouseout", () => d3.select("#HeatMap-tooltip").style("display", "none"));
 
+    // Brushing for Timeline Interaction
+const brush = d3.brushX()
+.extent([[0, 0], [width, height]])
+.on("brush end", function (event) {
+    if (!event.selection) return;
+
+    const [x0, x1] = event.selection;
+
+    // Identify selected range in the `xScale` domain
+    const selectedDates = xScale.domain().filter(d => {
+        const posX = xScale(d) + xScale.bandwidth() / 2; // Midpoint of each band
+        return posX >= x0 && posX <= x1;
+    });
+
+    // Filter data by selected dates
+    const filteredData = data.filter(d => 
+        selectedDates.includes(d3.timeFormat(getTimeFormat(binningInterval))(d.date))
+    );
+
+    renderFilteredMap(filteredData);   // Filter Map
+    renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
+});
+
+chart.append("g")
+.attr("class", "brush")
+.call(brush);
+
     // Axes
     chart.append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale).tickValues(xScale.domain().filter((d, i) => !(i % Math.floor(xScale.domain().length / 8))))) 
+        .call(d3.axisBottom(xScale).tickValues(xScale.domain().filter((d, i) => !(i % 5))))
         .selectAll("text")
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end");
 
-    chart.append("g")
-        .call(d3.axisLeft(yScale));
+    chart.append("g").call(d3.axisLeft(yScale));
+
+
 
     // --- LEGEND BELOW CHART ---
     const legendWidth = 300;
@@ -147,3 +169,14 @@ function getTimeFormat(interval) {
         default: return '%Y-%m';
     }
 }
+
+// Function to render filtered map data
+function renderFilteredMap(filteredData) {
+    leafletMap.updateMap(filteredData);
+}
+
+// Function to render filtered magnitude chart
+function renderFilteredMagnitudeChart(filteredData) {
+    renderMagnitudeChart(filteredData);
+}
+
