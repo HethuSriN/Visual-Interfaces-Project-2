@@ -16,6 +16,9 @@ class LeafletMap {
   initVis() {
     let vis = this;
 
+    //USTOPO
+    vis.usTopoUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}';
+    vis.usTopoAttr = 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>';
 
     //ESRI
     vis.esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
@@ -44,7 +47,7 @@ class LeafletMap {
       "Cyclosm": L.tileLayer(vis.csmUrl, { attribution: vis.csmAttr, id: 'stamen-terrain', ext: 'png'}),
       "OpenTopoMap": L.tileLayer(vis.topoUrl, { attribution: vis.topoAttr, id: 'opentopomap', ext: 'png'}),
       "ESRI World Imagery": L.tileLayer(vis.esriUrl, { attribution: vis.esriAttr, id: 'esri-image', ext: 'png'}),
-      "Stamen Water Color": L.tileLayer(vis.stnUrl, { attribution: vis.stnAttr, id: 'thunderforest-outdoors', ext: 'jpg'}),
+      "USGS US TOPO": L.tileLayer(vis.usTopoUrl, { attribution: vis.usTopoAttr, id: 'usgs-us-topo', ext: 'png'}),
     };
 
     document.getElementById("map-dropdown").addEventListener("change", function() {
@@ -80,25 +83,27 @@ class LeafletMap {
             magnitude >= 5.0 ? "#fc8d59" :  // Moderate (Orange)
             magnitude >= 4.0 ? "#fee08b" :  // Light (Yellow)
             magnitude >= 3.0 ? "#d9ef8b" :  // Minor (Light Green)
-                                "#91cf60";   // Weak (Green)
+            "#91cf60";// Weak (Green)
     };
-    // Brushing feature for geographic selection
-  const brush = L.rectangle([[35, -120], [45, -100]], {
-    color: "#0078A8",
-    weight: 2,
-    fillOpacity: 0.2
-  }).addTo(vis.theMap);
 
-  brush.on('edit', function (e) {
-    const bounds = e.target.getBounds();
-    const filteredData = vis.data.filter(d =>
-        d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
-        d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
-  );
 
-    renderFilteredHeatmap(filteredData);  // Update heatmap based on map selection
-    renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
-  });
+    // Brushing feature for geographic selection (rectangle) --- BROKEN
+  // const brush = L.rectangle([[35, -120], [45, -100]], {
+  //   color: "#0078A8",
+  //   weight: 2,
+  //   fillOpacity: 0.2
+  // }).addTo(vis.theMap);
+
+  // brush.on('edit', function (e) {
+  //   const bounds = e.target.getBounds();
+  //   const filteredData = vis.data.filter(d =>
+  //       d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
+  //       d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
+  // );
+
+  //   renderFilteredHeatmap(filteredData);  // Update heatmap based on map selection
+  //   renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
+  // });
 
 
     //these are the city locations, displayed as a set of dots 
