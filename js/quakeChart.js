@@ -1,10 +1,11 @@
+var selectedViewGlobal = 'magnitude';
 // Load and combine multiple datasets
 Promise.all([
-    d3.csv('data/2023_06-2022_10.csv'),
-    d3.csv('data/2022_10-2022_01.csv'),
-    d3.csv('data/2024_02-2023_06.csv'),
+    d3.csv('data/2024-2025.csv'),
     d3.csv('data/2025quake.csv'),
-    d3.csv('data/2024-2025.csv')
+    d3.csv('data/2024_02-2023_06.csv'),
+    d3.csv('data/2023_06-2022_10.csv'),
+    d3.csv('data/2022_10-2022_01.csv')
 ]).then(datasets => {
     const combinedData = datasets.flat();
 
@@ -21,10 +22,10 @@ Promise.all([
     
     d3.select("#view-select").on("change", function () {
         const selectedView = d3.select(this).property("value");
+        selectedViewGlobal = selectedView;
         renderChart(combinedData, selectedView);
     });
 });
-
 // Function to render different visualizations based on selection
 function renderChart(data, viewType) {
     const svg = d3.select("#quake-chart");

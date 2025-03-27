@@ -22,6 +22,23 @@
         </select>
     </div>
 
+    <!-- Animation Controls -->
+    <div id="animation-controls">
+        <button id="start-animation">Start Animation</button>
+        <button id="stop-animation" style="display: none;">Stop Animation</button>
+        
+        <label for="animation-speed">Animation Speed (ms per frame):</label>
+        <input type="number" id="animation-speed" value="200" min="50" max="2000" step="50" />
+    </div>
+
+    <!-- Timeline to select the range -->
+    <!-- <input type="range" id="timeline" min="0" max="100" value="0" step="1" /> -->
+    <div id="timeline-container">
+        <input type="range" id="timeline" min="0" max="100" step="1" value="0">
+        <div id="timeline-progress"> </div>  Time Line View Slider
+      </div>
+
+      
     <!-- Filter Controls -->
     <button id="reset-button">Reset Filters</button>
 
@@ -33,7 +50,7 @@
 
      <!-- Visualizations Container -->
      <div id="chart-box">
-        <!-- Heatmap and Line Chart Controls -->
+        <!-- Heatmap Controls -->
    <div id="controls">
        <label for="binning-select">Select Binning Interval:</label>
        <select id="binning-select">
@@ -71,6 +88,7 @@
     <script src="js/leafletMap.js"></script>
     <script src="js/quakeChart.js"></script>
     <script src="js/quakeHeatmap.js"></script>
+    
 
     <div id="tooltip"></div>
 </body>
