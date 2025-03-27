@@ -133,8 +133,7 @@ a:hover {
   box-sizing: border-box;
 }
 
-#heatmap,
-#quake-chart {
+#heatmap, #quake-chart {
   width: 100%;
   height: 500px;            /* Set a consistent height */
 }
@@ -150,3 +149,15 @@ a:hover {
   display: none;
 }
 
+#timeline-container {
+  position: relative;
+}
+
+#timeline-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  background-color: #0078A8;
+  transition: width 0.1s ease-out;
+}
