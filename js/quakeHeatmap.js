@@ -28,7 +28,7 @@ Promise.all([
 });
 
 // Function to render the heatmap
-function renderHeatmap(data, binningInterval) {
+function renderHeatmap(data, binningInterval, leafletMap) {
     const svg = d3.select("#heatmap");
     svg.selectAll("*").remove();
 
@@ -90,31 +90,31 @@ function renderHeatmap(data, binningInterval) {
         .on("mouseout", () => d3.select("#HeatMap-tooltip").style("display", "none"));
 
     // Brushing for Timeline Interaction
-const brush = d3.brushX()
-.extent([[0, 0], [width, height]])
-.on("brush end", function (event) {
-    if (!event.selection) return;
+    const brush = d3.brushX()
+        .extent([[0, 0], [width, height]])
+        .on("brush end", function (event) {
+            if (!event.selection) return;
 
-    const [x0, x1] = event.selection;
+            const [x0, x1] = event.selection;
 
-    // Identify selected range in the `xScale` domain
-    const selectedDates = xScale.domain().filter(d => {
-        const posX = xScale(d) + xScale.bandwidth() / 2; // Midpoint of each band
-        return posX >= x0 && posX <= x1;
-    });
+            // Identify selected range in the `xScale` domain
+            const selectedDates = xScale.domain().filter(d => {
+                const posX = xScale(d) + xScale.bandwidth() / 2; // Midpoint of each band
+                return posX >= x0 && posX <= x1;
+            });
 
-    // Filter data by selected dates
-    const filteredData = data.filter(d => 
-        selectedDates.includes(d3.timeFormat(getTimeFormat(binningInterval))(d.date))
-    );
+            // Filter data by selected dates
+            const filteredData = data.filter(d =>
+                selectedDates.includes(d3.timeFormat(getTimeFormat(binningInterval))(d.date))
+            );
 
-    renderFilteredMap(filteredData);   // Filter World Map
-    renderFilteredChart(filteredData,selectedViewGlobal); // Filter Chart
-});
+            renderFilteredMap(filteredData, leafletMap);   // Filter World Map
+            renderFilteredChart(filteredData, selectedViewGlobal); // Filter Chart
+        });
 
-chart.append("g")
-.attr("class", "brush")
-.call(brush);
+    chart.append("g")
+        .attr("class", "brush")
+        .call(brush);
 
     // Axes
     chart.append("g")
