@@ -38,8 +38,6 @@ class LeafletMap {
 
     vis.Esri_WorldTerrainUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}';
     vis.Esri_WorldTerrainAttr = 'Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS';
-    //this is the deafult map layer, where we are showing the map background
-
 
     // Define the tile layers
     vis.baseLayers = {
@@ -52,8 +50,6 @@ class LeafletMap {
 
     document.getElementById("map-dropdown").addEventListener("change", function() {
       const selectedLayer = this.value;
-      // vis.theMap.eachLayer(layer => vis.theMap.removeLayer(layer));
-      // Only remove the base layer (not SVG/earthquake points)
       Object.values(vis.baseLayers).forEach(layer => vis.theMap.removeLayer(layer));
       vis.baseLayers[selectedLayer].addTo(vis.theMap);
       vis.updateVis();
@@ -73,85 +69,119 @@ class LeafletMap {
     });
 
     //initialize svg for d3 to add to map
-    L.svg({clickable:true}).addTo(vis.theMap)// we have to make the svg layer clickable
-    vis.overlay = d3.select(vis.theMap.getPanes().overlayPane)
-    vis.svg = vis.overlay.select('svg').attr("pointer-events", "auto")    
+    L.svg({clickable:true}).addTo(vis.theMap);
+    vis.overlay = d3.select(vis.theMap.getPanes().overlayPane);
+    vis.svg = vis.overlay.select('svg').attr("pointer-events", "auto");    
 
-    // Function to determine marker color based on magnitude
+    // Create a feature group for Leaflet Draw
+    const drawnItems = new L.FeatureGroup().addTo(vis.theMap);
+
+    // Initialize Leaflet Draw control with rectangle option
+    const drawControl = new L.Control.Draw({
+      edit: {
+        featureGroup: drawnItems
+      },
+      draw: {
+        rectangle: true,  // Enable only rectangle drawing
+        polyline: false,
+        polygon: false,
+        circle: false,
+        marker: false
+      }
+    });
+
+    vis.theMap.addControl(drawControl);  // Add the control to the map
+
+    // Event listener when a rectangle is drawn
+    vis.theMap.on('draw:created', function (e) {
+      const layer = e.layer;
+      drawnItems.addLayer(layer);  // Add the drawn rectangle to the feature group
+
+      // Filter the data based on the rectangle bounds
+      const bounds = layer.getBounds();  // Get bounds of the drawn rectangle
+      const filteredData = vis.data.filter(d =>
+        d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
+        d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
+      );
+
+      // After filtering, update the map, heatmap, and chart
+      renderFilteredMap(filteredData);  // Filter the map based on selection
+      renderFilteredHeatmap(filteredData, selectedBinGlobal);  // Filter the heatmap
+      renderFilteredChart(filteredData, selectedViewGlobal);  // Filter the chart
+    });
+
+    // Reset button event listener
+    document.getElementById("reset-button").addEventListener("click", function () {
+      drawnItems.clearLayers();  // Clear all drawn items
+      renderFilteredMap(vis.data);  // Reset the map to show all data
+      renderFilteredHeatmap(vis.data, selectedBinGlobal);  // Reset the heatmap
+      renderFilteredChart(vis.data, selectedViewGlobal);  // Reset the chart
+    });
+
+    // Helper function to update the timeline based on filtered data
+    function updateTimelineBasedOnData(filteredData) {
+      const minDate = d3.min(filteredData, d => d.date);
+      const maxDate = d3.max(filteredData, d => d.date);
+
+      const timeline = document.getElementById('timeline');
+      timeline.min = minDate.getTime();
+      timeline.max = maxDate.getTime();
+      timeline.value = minDate.getTime();  // Set to the start of the filtered range
+
+      document.getElementById('timeline-progress').style.width = '0%';
+    }
+
+    // Define the getColor function here, so it is accessible
     vis.getColor = function(magnitude) {
       return magnitude >= 6.0 ? "#d73027" :  // Strong (Red)
             magnitude >= 5.0 ? "#fc8d59" :  // Moderate (Orange)
             magnitude >= 4.0 ? "#fee08b" :  // Light (Yellow)
             magnitude >= 3.0 ? "#d9ef8b" :  // Minor (Light Green)
-            "#91cf60";// Weak (Green)
-    };
+            "#91cf60"; // Weak (Green)
+    }
 
-
-    // Brushing feature for geographic selection (rectangle) --- BROKEN
-  // const brush = L.rectangle([[35, -120], [45, -100]], {
-  //   color: "#0078A8",
-  //   weight: 2,
-  //   fillOpacity: 0.2
-  // }).addTo(vis.theMap);
-
-  // brush.on('edit', function (e) {
-  //   const bounds = e.target.getBounds();
-  //   const filteredData = vis.data.filter(d =>
-  //       d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
-  //       d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
-  // );
-
-  //   renderFilteredHeatmap(filteredData);  // Update heatmap based on map selection
-  //   renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
-  // });
-
-
-    //these are the city locations, displayed as a set of dots 
+    // Add earthquake markers (dots) to the map
     vis.Dots = vis.svg.selectAll('circle')
-                    .data(vis.data) 
-                    .join('circle')
-                        .attr("fill", d => vis.getColor(d.mag))  
-                        .attr("stroke", "black")
-                        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
-                        .attr("r", d => Math.max(2, d.mag * 1.5))  
-                        .on('mouseover', function(event,d) { //function to add mouseover event
-                            d3.select(this).transition() 
-                              .duration('150') 
-                              .attr("fill", "red") 
-                              .attr('r', d => Math.max(4, d.mag * 2));  
+      .data(vis.data)
+      .join('circle')
+      .attr("fill", d => vis.getColor(d.mag))
+      .attr("stroke", "black")
+      .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+      .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+      .attr("r", d => Math.max(2, d.mag * 1.5))
+      .on('mouseover', function(event, d) {
+        d3.select(this).transition()
+          .duration('150')
+          .attr("fill", "red")
+          .attr('r', d => Math.max(4, d.mag * 2));
 
-                            //create a tool tip
-                            d3.select('#tooltip')
-                                .style('opacity', 1)
-                                .style('z-index', 1000000)
-                                .html(`<strong>Location:</strong> ${d.place} <br> 
-                                  <strong>Magnitude:</strong> ${d.mag} <br> 
-                                  <strong>Depth:</strong> ${d.depth} km <br>
-                                  <strong>Time:</strong> ${new Date(d.time).toLocaleString()}`);
+        d3.select('#tooltip')
+          .style('opacity', 1)
+          .html(`
+            <strong>Location:</strong> ${d.place} <br>
+            <strong>Magnitude:</strong> ${d.mag} <br> 
+            <strong>Depth:</strong> ${d.depth} km <br>
+            <strong>Time:</strong> ${new Date(d.time).toLocaleString()}
+          `);
+      })
+      .on('mousemove', (event) => {
+        d3.select('#tooltip')
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY + 10) + 'px');
+      })
+      .on('mouseleave', function() {
+        d3.select(this).transition()
+          .duration('150')
+          .attr("fill", d => vis.getColor(d.mag))
+          .attr('r', d => Math.max(2, d.mag * 1.5));
+        
+        d3.select('#tooltip').style('opacity', 0);
+      });
 
-                          })
-                        .on('mousemove', (event) => {
-                            //position the tooltip
-                            d3.select('#tooltip')
-                             .style('left', (event.pageX + 10) + 'px')   
-                              .style('top', (event.pageY + 10) + 'px');
-                         })              
-                        .on('mouseleave', function() { //function to add mouseover event
-                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                              .duration('150') 
-                              .attr("fill", d => vis.getColor(d.mag)) 
-                              .attr('r', d => Math.max(2, d.mag * 1.5)); 
-
-                            d3.select('#tooltip').style('opacity', 0);
-
-                          })
-    
-    //handler here for updating the map, as you zoom in and out          
-    vis.theMap.on("zoomend", function(){
+    // Event listener for map zoom changes
+    vis.theMap.on("zoomend", function() {
       vis.updateVis();
     });
-
   }
 
   updateVis() {
@@ -164,27 +194,20 @@ class LeafletMap {
       .attr("r", d => Math.max(3, d.mag * 2));
   }
 
-
-  renderVis() {
-    let vis = this;
- 
-  }
-  
   updateMap(filteredData) {
     let vis = this;
 
     // Clear previous points
     vis.svg.selectAll('circle').remove();
 
-    // Add filtered data
+    // Add filtered data to the map as dots
     vis.Dots = vis.svg.selectAll('circle')
-        .data(filteredData)
-        .join('circle')
-        .attr("fill", d => vis.getColor(d.mag))
-        .attr("stroke", "black")
-        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
-        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
-        .attr("r", d => Math.max(2, d.mag * 1.5));
-}
-
+      .data(filteredData)
+      .join('circle')
+      .attr("fill", d => vis.getColor(d.mag))
+      .attr("stroke", "black")
+      .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+      .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+      .attr("r", d => Math.max(2, d.mag * 1.5));
+  }
 }
