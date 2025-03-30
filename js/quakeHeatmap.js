@@ -86,6 +86,8 @@ function renderHeatmap(data, binningInterval) {
         })
         .on("mouseout", () => d3.select("#HeatMap-tooltip").style("display", "none"));
 
+
+
     // Brushing for Timeline Interaction
 const brush = d3.brushX()
 .extent([[0, 0], [width, height]])
@@ -107,6 +109,9 @@ const brush = d3.brushX()
 
     renderFilteredMap(filteredData);   // Filter Map
     renderFilteredMagnitudeChart(filteredData); // Filter Magnitude Chart
+
+    updateTotalCount(filteredData);
+    updateAverageMagnitude(filteredData); 
 });
 
 chart.append("g")
@@ -158,6 +163,24 @@ chart.append("g")
         .attr("transform", `translate(0, ${legendHeight})`)
         .call(d3.axisBottom(legendScale).ticks(5).tickFormat(d3.format(".0f")));
 }
+
+// Helper function to update the total count of earthquakes
+function updateTotalCount(filteredData) {
+    const totalCount = filteredData.length; // Get the filtered earthquake count
+    d3.select("#total-earthquakes").text(totalCount); // Update the displayed total count
+}
+
+function updateAverageMagnitude(filteredData) {
+    console.log(filteredData); // Debug log
+    if (filteredData.length === 0) {
+        d3.select("#avg-magnitude-value").text("N/A");
+        return;
+    }
+
+    const avgMagnitude = d3.mean(filteredData, d => +d.magnitude); // Ensure numeric
+    d3.select("#avg-magnitude-value").text(avgMagnitude.toFixed(2)); // Format to 2 decimal places
+}
+
 
 // Helper function to determine time bin format
 function getTimeFormat(interval) {

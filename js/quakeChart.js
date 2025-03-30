@@ -58,6 +58,8 @@ function renderChart(data, viewType) {
         xAxisLabel = "Depth (km)";
     }
 
+       // Update the total count
+       updateTotalCount(data);
     // Scale Definitions
     xScale = d3.scaleBand()
         .domain(bins.map(bin => `${bin.x0} - ${bin.x1}`))

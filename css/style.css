@@ -110,6 +110,13 @@ a:hover {
   background-color: #ffffff;
 } */
 
+#chart-row {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  
+}
+
 #charts-container {
   display: flex;            /* Flexbox to arrange side by side */
   gap: 30px;                /* Adds space between charts */
@@ -150,3 +157,13 @@ a:hover {
   display: none;
 }
 
+#total-count-container, #average-magnitude{
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid #0078A8;
+  border-radius: 8px;
+  background-color: #e0f7fa;
+  color: #0078A8;
+  font-weight: bold;
+  text-align: center;
+}
