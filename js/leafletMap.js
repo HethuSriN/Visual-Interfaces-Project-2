@@ -15,7 +15,16 @@ class LeafletMap {
   
   initVis() {
     let vis = this;
+    let soundEnabled = false;  // Default: sound is OFF
 
+    document.getElementById('sound-toggle').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;  // Flip the state
+    
+      // Update button label
+      const label = soundEnabled ? '🔈 Sound On' : '🔇 Sound Off';
+      document.getElementById('sound-toggle').textContent = label;
+    });
+  
     //USTOPO
     vis.usTopoUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}';
     vis.usTopoAttr = 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>';
@@ -93,22 +102,42 @@ class LeafletMap {
     vis.theMap.addControl(drawControl);  // Add the control to the map
 
     // Event listener when a rectangle is drawn
+    // vis.theMap.on('draw:created', function (e) {
+    //   const layer = e.layer;
+    //   drawnItems.addLayer(layer);  // Add the drawn rectangle to the feature group
+
+    //   // Filter the data based on the rectangle bounds
+    //   const bounds = layer.getBounds();  // Get bounds of the drawn rectangle
+    //   const filteredData = vis.data.filter(d =>
+    //     d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
+    //     d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
+    //   );
+
+    //   // After filtering, update the map, heatmap, and chart
+    //   renderFilteredMap(filteredData);  // Filter the map based on selection
+    //   renderFilteredHeatmap(filteredData, selectedBinGlobal);  // Filter the heatmap
+    //   renderFilteredChart(filteredData, selectedViewGlobal);  // Filter the chart
+    // });
     vis.theMap.on('draw:created', function (e) {
       const layer = e.layer;
-      drawnItems.addLayer(layer);  // Add the drawn rectangle to the feature group
-
-      // Filter the data based on the rectangle bounds
-      const bounds = layer.getBounds();  // Get bounds of the drawn rectangle
+      drawnItems.addLayer(layer);
+    
+      const bounds = layer.getBounds();
+    
       const filteredData = vis.data.filter(d =>
         d.latitude >= bounds.getSouth() && d.latitude <= bounds.getNorth() &&
         d.longitude >= bounds.getWest() && d.longitude <= bounds.getEast()
       );
-
-      // After filtering, update the map, heatmap, and chart
-      renderFilteredMap(filteredData);  // Filter the map based on selection
-      renderFilteredHeatmap(filteredData, selectedBinGlobal);  // Filter the heatmap
-      renderFilteredChart(filteredData, selectedViewGlobal);  // Filter the chart
+    
+      // Store current filtered data globally
+      window.currentFilteredData = filteredData;
+    
+      // Update chart with only filtered data
+      renderFilteredMap(filteredData);
+      renderFilteredHeatmap(filteredData, selectedBinGlobal);
+      renderFilteredChart(filteredData, selectedViewGlobal);  // ⬅ this is key
     });
+    
 
     // Reset button event listener
     document.getElementById("reset-button").addEventListener("click", function () {
@@ -150,6 +179,12 @@ class LeafletMap {
       .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
       .attr("r", d => Math.max(2, d.mag * 1.5))
       .on('mouseover', function(event, d) {
+        // Only play sound if enabled
+        if (soundEnabled) {
+          // Play sound for the earthquake
+          vis.playEarthquakeSound(d); // Call the function to play sound based on earthquake data
+      }
+
         d3.select(this).transition()
           .duration('150')
           .attr("fill", "red")
@@ -191,15 +226,15 @@ class LeafletMap {
       .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
       .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
       .attr("fill", d => vis.getColor(d.mag))
-      .attr("r", d => Math.max(3, d.mag * 2));
+      .attr("r", d => Math.max(3, d.mag * 2))
   }
 
   updateMap(filteredData) {
     let vis = this;
-
+  
     // Clear previous points
     vis.svg.selectAll('circle').remove();
-
+  
     // Add filtered data to the map as dots
     vis.Dots = vis.svg.selectAll('circle')
       .data(filteredData)
@@ -208,6 +243,58 @@ class LeafletMap {
       .attr("stroke", "black")
       .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
       .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
-      .attr("r", d => Math.max(2, d.mag * 1.5));
+      .attr("r", d => Math.max(2, d.mag * 1.5))
+      .on('mouseover', function(event, d) {
+        if (vis.soundEnabled) {
+          vis.playEarthquakeSound(d);
+        }
+  
+        d3.select(this).transition()
+          .duration(150)
+          .attr("fill", "red")
+          .attr("r", Math.max(4, d.mag * 2));
+  
+        d3.select('#tooltip')
+          .style('opacity', 1)
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY + 10) + 'px')
+          .html(`
+            <strong>Location:</strong> ${d.place} <br>
+            <strong>Magnitude:</strong> ${d.mag} <br> 
+            <strong>Depth:</strong> ${d.depth} km <br>
+            <strong>Time:</strong> ${new Date(d.time).toLocaleString()}
+          `);
+      })
+      .on('mouseleave', function(event, d) {
+        d3.select(this).transition()
+          .duration(150)
+          .attr("fill", vis.getColor(d.mag))
+          .attr("r", Math.max(2, d.mag * 1.5));
+  
+        d3.select('#tooltip').style('opacity', 0);
+      });
+  }
+  
+
+  playEarthquakeSound(earthquake) {
+    const magnitude = earthquake.mag;
+    const depth = earthquake.depth;
+  
+    // Map magnitude to volume (0 to 1 scale)
+    const volume = Math.min(Math.max(magnitude / 10, 0), 1); // Ensure volume is between 0 and 1
+  
+    // Map depth to pitch (lower depth = lower pitch)
+    const pitch = Math.max(Math.min(2 - depth / 7000, 2), 0.5); // Ensure pitch is between 0.5 and 2
+  
+    // Use the same sound file but modify volume and pitch based on magnitude and depth
+    const sound = new Howl({
+      src: ['sounds/earthquake_sound.mp3'],  // Path to your sound file
+      volume: volume,                 // Adjust volume based on magnitude
+      rate: pitch,                    // Adjust pitch based on depth
+      loop: false                     // Set to true if you want it to loop
+    });
+  
+    // Play the sound
+    sound.play();
   }
 }

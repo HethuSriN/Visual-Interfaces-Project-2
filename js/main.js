@@ -12,6 +12,7 @@ Promise.all([
 
   // Combine datasets (append data)
   combinedData = [...data1, ...data2, ...data3, ...data4, ...data5];
+  window.currentFilteredData = combinedData;
 
   // Now initialize totalFrames after the data is loaded
   totalFrames = combinedData.length;  // Set totalFrames here after data is loaded
@@ -29,6 +30,47 @@ Promise.all([
   renderHeatmap(combinedData, 'month', leafletMap);
   //renderHeatmap(combinedData, 'month');
   renderChart(combinedData, 'magnitude');
+  updateTopLocation(combinedData);
+
+
+  // Function to update total earthquake count based on current filtered data
+  function updateTotalCount(filteredData) {
+    const totalCount = filteredData.length;
+    d3.select('#total-count')
+      .text(`Total Earthquakes: ${totalCount}`);
+  }
+
+  // Brush functionality in the heatmap to filter data and update total count
+  function handleBrushSelection(filteredData) {
+    updateTotalCount(filteredData);  // Update the count based on brush filter
+  }
+  // Brush interaction in the heatmap
+  d3.select('#heatmap')
+  .on('brush', function(event) {
+    if (!event.selection) return;
+
+    const [x0, x1] = event.selection;
+
+    // Filter the data based on the selection (time bins)
+    const selectedDates = xScale.domain().filter(d => {
+        const posX = xScale(d) + xScale.bandwidth() / 2; // Midpoint of each band
+        return posX >= x0 && posX <= x1;
+    });
+
+    const filteredData = combinedData.filter(d => 
+        selectedDates.includes(d3.timeFormat(getTimeFormat('month'))(d.date))
+    );
+
+    // Update the map with filtered data (based on current time)
+    renderFilteredMap(filteredData);
+
+    // Update the heatmap with the filtered data
+    renderHeatmap(filteredData, selectedBinGlobal);
+
+    // Update the magnitude chart based on the filtered data
+    renderFilteredChart(filteredData, selectedViewGlobal);
+    handleBrushSelection(filteredData); // Update the total earthquake count
+  });
 
   let animationInterval;
 
@@ -87,6 +129,20 @@ Promise.all([
     }, speed);
   }
 
+  // Update Total Count on Dropdown Change (for Binning Interval)
+ d3.select('#binning-select').on('change', function() {
+  const selectedBin = d3.select(this).property('value');
+  renderHeatmap(combinedData, selectedBin); // Re-render heatmap with new binning
+  updateTotalCount(combinedData);  // Update count after re-render
+});
+
+// Update Total Count on View Change (Magnitude, Duration, Depth)
+d3.select('#view-select').on('change', function() {
+  const selectedView = d3.select(this).property('value');
+  renderMagnitudeChart(combinedData, selectedView); // Re-render chart based on view
+  updateTotalCount(combinedData);  // Update count after re-render
+});
+
   // Reset Button Logic to Reset All Filters
   document.getElementById('reset-button').addEventListener("click", function () {
     // Reset the dropdowns to their default values
@@ -95,10 +151,12 @@ Promise.all([
     document.getElementById("view-select").value = "magnitude";  // Reset the view dropdown to 'magnitude'
     selectedViewGlobal = 'magnitude'; // Reset the selected view to 'magnitude'
     // Reset the map, chart, and filters to their initial state
+    window.currentFilteredData = combinedData;
     renderFilteredMap(combinedData);
     renderFilteredHeatmap(combinedData, 'month');
-    renderFilteredChart(combinedData, 'magnitude');
-
+    // renderFilteredChart(combinedData, 'magnitude');
+    renderChart(combinedData, 'magnitude');
+    
     // Reset the timeline
     document.getElementById('timeline').value = 0;
     currentTimeIndex = 0;  // Reset the animation to the start
@@ -110,6 +168,8 @@ Promise.all([
 
     // Reset visual progress bar
     document.getElementById('timeline-progress').style.width = '0%';
+
+    updateTotalCount(combinedData); // Reset total count to full dataset
   });
 
   // Listen for changes to the timeline slider
@@ -127,6 +187,35 @@ Promise.all([
 
 }).catch(error => console.error(error));
 
+function updateTopLocation(data, metric = "count") {
+  let result;
+
+  if (metric === "count") {
+    result = d3.rollups(data, v => v.length, d => d.place);
+  } else if (metric === "average") {
+    result = d3.rollups(data, v => d3.mean(v, d => +d.mag), d => d.place);
+  } else if (metric === "energy") {
+    result = d3.rollups(data, v => d3.sum(v, d => Math.pow(10, 1.5 * d.mag)), d => d.place);
+  }
+
+  result.sort((a, b) => b[1] - a[1]);
+
+  const top = result[0];
+  const displayValue =
+    metric === "count" ? `${top[0]} (${top[1]} quakes)` :
+    metric === "average" ? `${top[0]} (Avg Mag: ${top[1].toFixed(2)})` :
+    `${top[0]} (Energy: ${top[1].toExponential(2)})`;
+
+  d3.select("#location-value").text(displayValue);
+
+  // Dropdown change listener
+d3.select("#impact-metric").on("change", function () {
+  const selectedMetric = this.value;
+  updateTopLocation(combinedData, selectedMetric);
+});
+}
+
+
 // Helper function to determine time bin format
 function getTimeFormat(interval) {
   switch (interval) {
@@ -139,6 +228,7 @@ function getTimeFormat(interval) {
 }
 
 function renderFilteredMap(filteredData) {
+  window.currentFilteredData = filteredData;
   leafletMap.updateMap(filteredData);  // Update the map with filtered data
 }
 
@@ -161,41 +251,3 @@ function updateTimelineBasedOnData(filteredData) {
   timeline.max = maxDate.getTime();
   timeline.value = minDate.getTime();  // Set the timeline's value to the start date
 }
-
-// In main.js - Logic for Clear Filters
-document.getElementById('clear-filters-button').addEventListener('click', function () {
-  // Reset the map, timeline, and charts to their default state
-  leafletMap.updateMap(combinedData);  // Reset the map
-  renderFilteredHeatmap(combinedData, 'month');  // Reset heatmap
-  renderFilteredMagnitudeChart(combinedData);  // Reset magnitude chart
-
-  // Reset the timeline slider to its initial value
-  document.getElementById('timeline').value = 0;
-  currentTimeIndex = 0;  // Reset the animation to start
-  clearInterval(animationInterval);  // Stop the animation if it's running
-
-  // Reset animation controls and visual progress bar
-  document.getElementById('timeline-progress').style.width = '0%';
-});
-
-// Function to filter data and update map, heatmap, and chart
-function filterAndUpdate(selectedRange) {
-  console.log('Selected Range:', selectedRange);
-
-  // Log the first 10 entries of the data to ensure we're looking at the correct values
-  console.log('First 10 entries of data:', combinedData.slice(0, 10));
-
-  // Filter the data based on the selected range
-  const filteredData = combinedData.filter(d => {
-      console.log('Checking magnitude for data point:', d.magnitude); // Log each magnitude
-      return d.magnitude >= selectedRange.min && d.magnitude < selectedRange.max;
-  });
-
-  console.log('Filtered Data:', filteredData); // Log the filtered data
-
-  // Now update the map, heatmap, and chart with the filtered data
-  renderFilteredMap(filteredData);
-  renderFilteredHeatmap(filteredData, selectedBinGlobal);
-  renderFilteredChart(filteredData, selectedViewGlobal);
-}
-

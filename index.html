@@ -43,10 +43,8 @@
       
     <!-- Filter Controls -->
     <button id="reset-button">Reset Filters</button>
-    <!-- In index.html, Add Clear All Filters Button -->
-    <button id="clear-filters-button">Clear All Filters</button>
 
-
+    <button id="sound-toggle">🔈 Sound Off</button>
 
     <!-- Earthquake Map -->
     <div id="my-map"></div>
@@ -86,6 +84,18 @@
 
    </div>
 
+   <div id="chart-row">
+    <!-- Total Earthquakes Count Display -->
+    <div id="total-count-container" style="font-size: 24px; font-weight: bold; text-align: center; margin-top: 20px;">
+        Total Earthquakes: <span id="total-earthquakes">0</span>
+    </div>
+
+    <div id="average-magnitude" style="font-size: 24px; font-weight: bold; margin-top: 20px;">
+        Average Magnitude: <span id="avg-magnitude-value">0.0</span>
+    </div>
+
+    </div>
+
     <!-- Script Files -->
     <script src="js/d3.v6.min.js"></script>
     <script src="js/leaflet.js"></script>
@@ -94,8 +104,7 @@
     <script src="js/quakeChart.js"></script>
     <script src="js/quakeHeatmap.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    
-
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
     <div id="tooltip"></div>
 </body>
 </html>
