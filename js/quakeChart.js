@@ -1,39 +1,30 @@
 var selectedViewGlobal = 'magnitude';
-// Load and combine multiple datasets
-Promise.all([
-    d3.csv('data/2024-2025.csv'),
-    d3.csv('data/2025quake.csv'),
-    d3.csv('data/2024_02-2023_06.csv'),
-    d3.csv('data/2023_06-2022_10.csv'),
-    d3.csv('data/2022_10-2022_01.csv')
-]).then(datasets => {
-    const combinedData = datasets.flat();
 
-    // Standardize data types
-    combinedData.forEach(d => {
-        d.date = new Date(d.time);  
-        d.magnitude = +d.mag;     // Magnitude for visualization
-        d.depth = +d.depth;       // Depth for visualization
-        d.duration = +d.dmin || 0; // Using `dmin` as duration
-    });
-
-    // Initialize visualizations
-    renderChart(combinedData, 'magnitude');
-    
+document.addEventListener('DOMContentLoaded', () => {
     d3.select("#view-select").on("change", function () {
-        const selectedView = d3.select(this).property("value");
-        selectedViewGlobal = selectedView;
-        renderChart(combinedData, selectedView);
+        selectedViewGlobal = d3.select(this).property("value");
+        if (window.currentFilteredData) {
+            renderChart(window.currentFilteredData, selectedViewGlobal);
+        }
     });
 });
-// Function to render different visualizations based on selection
+
 function renderChart(data, viewType) {
     const svg = d3.select("#quake-chart");
-    svg.selectAll("*").remove();  // Clear previous content
+    svg.selectAll("*").remove();
+
+    if (!data || data.length === 0) {
+        svg.append("text")
+            .attr("x", 400)
+            .attr("y", 200)
+            .attr("text-anchor", "middle")
+            .text("No data to display");
+        return;
+    }
 
     const margin = { top: 40, right: 40, bottom: 100, left: 90 },
-          width = 800 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+        width = 800 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
 
     const chart = svg
         .attr("width", width + margin.left + margin.right)
@@ -41,43 +32,51 @@ function renderChart(data, viewType) {
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    let xScale, yScale, colorScale, xAxisLabel;
+    let values = [];
+    let xAxisLabel = "";
 
-    // Define bins and scales
-    let bins;
     if (viewType === 'magnitude') {
-        bins = d3.bin().domain([3, 8]).thresholds([3, 4, 5, 6, 7, 8])(data.map(d => d.magnitude));
-        colorScale = d3.scaleSequential(d3.interpolateBlues);
+        values = data.map(d => +d.mag).filter(d => !isNaN(d));
         xAxisLabel = "Magnitude Range";
     } else if (viewType === 'duration') {
-        bins = d3.bin().domain([0, d3.max(data, d => d.duration)]).thresholds(10)(data.map(d => d.duration));
-        colorScale = d3.scaleSequential(d3.interpolateOranges);
-        xAxisLabel = "Duration (dmin value as proxy)";
+        values = data.map(d => +d.dmin || 0).filter(d => !isNaN(d));
+        xAxisLabel = "Duration (dmin)";
     } else if (viewType === 'depth') {
-        bins = d3.bin().domain([0, d3.max(data, d => d.depth)]).thresholds(12)(data.map(d => d.depth));
-        colorScale = d3.scaleSequential(d3.interpolateGreens);
+        values = data.map(d => +d.depth).filter(d => !isNaN(d));
         xAxisLabel = "Depth (km)";
     }
+    
+    // Update the total count
+    updateTotalCount(data);
 
-    // Scale Definitions
-    xScale = d3.scaleBand()
-        .domain(bins.map(bin => `${bin.x0} - ${bin.x1}`))
+    if (values.length === 0) {
+        chart.append("text")
+            .attr("x", width / 2)
+            .attr("y", height / 2)
+            .attr("text-anchor", "middle")
+            .text("No valid data for this view");
+        return;
+    }
+
+    var bins = d3.bin().thresholds(8)(values);
+
+    const xScale = d3.scaleBand()
+        .domain(bins.map(bin => `${(bin.x0 || 0).toFixed(1)} - ${(bin.x1 || 0).toFixed(1)}`))
         .range([0, width])
         .padding(0.1);
 
-    yScale = d3.scaleLinear()
+    const yScale = d3.scaleLinear()
         .domain([0, d3.max(bins, d => d.length)])
-        .nice()
         .range([height, 0]);
 
-    colorScale.domain([0, d3.max(bins, d => d.length)]);
+    const colorScale = d3.scaleSequential(d3.interpolateYlGnBu)
+        .domain([0, d3.max(bins, d => d.length)]);
 
-    // Bars
     chart.selectAll(".bar")
         .data(bins)
         .join("rect")
         .attr("class", "bar")
-        .attr("x", d => xScale(`${d.x0} - ${d.x1}`))
+        .attr("x", d => xScale(`${(d.x0 || 0).toFixed(1)} - ${(d.x1 || 0).toFixed(1)}`))
         .attr("y", d => yScale(d.length))
         .attr("width", xScale.bandwidth())
         .attr("height", d => height - yScale(d.length))
@@ -86,20 +85,35 @@ function renderChart(data, viewType) {
             d3.select("#chart-tooltip")
                 .style("display", "block")
                 .html(`
-                    <strong>Range:</strong> ${d.x0} - ${d.x1} <br>
-                    <strong>Count:</strong> ${d.length}
-                `);
+                <strong>Range:</strong> ${d.x0} - ${d.x1} <br>
+                <strong>Count:</strong> ${d.length}
+            `);
         })
         .on("mousemove", function (event) {
             d3.select("#chart-tooltip")
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 40) + "px");
         })
-        .on("mouseout", () => d3.select("#chart-tooltip").style("display", "none"));
+        .on("mouseout", () => d3.select("#chart-tooltip").style("display", "none"))
+        .on("click", function (event, d) {
+            const min = d.x0;
+            const max = d.x1;
 
-    // Axes
+            const filtered = (window.currentFilteredData || []).filter(item => {
+                if (viewType === 'magnitude') return +item.mag >= min && +item.mag <= max;
+                if (viewType === 'duration') return +item.dmin >= min && +item.dmin <= max;
+                if (viewType === 'depth') return +item.depth >= min && +item.depth <= max;
+                return false;
+            });
+
+            window.currentFilteredData = filtered;
+            renderFilteredMap(filtered);
+            renderFilteredHeatmap(filtered, selectedBinGlobal);
+            renderChart(filtered, selectedViewGlobal);
+        });
+
     chart.append("g")
-        .attr("transform", `translate(0, ${height})`)
+        .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .attr("transform", "rotate(-45)")
@@ -107,99 +121,17 @@ function renderChart(data, viewType) {
 
     chart.append("g").call(d3.axisLeft(yScale));
 
-    // Axis labels
     chart.append("text")
-        .attr("class", "axis-label")
         .attr("x", width / 2)
         .attr("y", height + 60)
         .attr("text-anchor", "middle")
         .text(xAxisLabel);
 
     chart.append("text")
-        .attr("class", "axis-label")
         .attr("x", -height / 2)
         .attr("y", -50)
+        .attr("transform", "rotate(-90)")
         .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .text("Frequency");
-}
-
-function renderMagnitudeChart(data) {
-    const svg = d3.select("#quake-chart");
-    svg.selectAll("*").remove();
-
-    const margin = { top: 40, right: 40, bottom: 70, left: 70 };
-    const width = 800 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
-
-    const chart = svg
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    // Binning by Magnitude
-    const magBins = d3.rollups(
-        data,
-        v => v.length,
-        d => Math.floor(d.mag) // Bin magnitudes by whole numbers (e.g., 5.0, 6.0)
-    );
-
-    const xScale = d3.scaleBand()
-        .domain(magBins.map(d => d[0])) 
-        .range([0, width])
-        .padding(0.2);
-
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(magBins, d => d[1])])
-        .nice()
-        .range([height, 0]);
-
-    const colorScale = d3.scaleSequential(d3.interpolateBlues)
-        .domain([0, d3.max(magBins, d => d[1])]);
-
-    // Draw Bars
-    chart.selectAll(".bar")
-        .data(magBins)
-        .join("rect")
-        .attr("class", "bar")
-        .attr("x", d => xScale(d[0]))
-        .attr("y", d => yScale(d[1]))
-        .attr("width", xScale.bandwidth())
-        .attr("height", d => height - yScale(d[1]))
-        .attr("fill", d => colorScale(d[1]))
-        .on("mouseover", function (event, d) {
-            d3.select("#chart-tooltip")
-                .style("display", "block")
-                .html(`
-                    <strong>Magnitude:</strong> ${d[0]}<br>
-                    <strong>Earthquakes:</strong> ${d[1]}
-                `)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 40) + "px");
-        })
-        .on("mouseout", () => d3.select("#chart-tooltip").style("display", "none"));
-
-    // Axes
-    chart.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale));
-
-    chart.append("g")
-        .call(d3.axisLeft(yScale));
-
-    // Axis Labels
-    chart.append("text")
-        .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 20)
-        .style("text-anchor", "middle")
-        .text("Magnitude");
-
-    chart.append("text")
-        .attr("x", -height / 2)
-        .attr("y", -50)
-        .attr("transform", "rotate(-90)")
-        .style("text-anchor", "middle")
         .text("Frequency");
 }
 

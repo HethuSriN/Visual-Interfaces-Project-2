@@ -133,6 +133,12 @@ a:hover {
   box-sizing: border-box;
 }
 
+#chart-row {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
 #heatmap, #quake-chart {
   width: 100%;
   height: 500px;            /* Set a consistent height */
@@ -160,4 +166,15 @@ a:hover {
   height: 5px;
   background-color: #0078A8;
   transition: width 0.1s ease-out;
+}
+
+#total-count-container, #average-magnitude,#location-stats{
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid #0078A8;
+  border-radius: 8px;
+  background-color: #e0f7fa;
+  color: #0078A8;
+  font-weight: bold;
+  text-align: center;
 }
