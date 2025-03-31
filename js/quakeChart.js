@@ -58,7 +58,7 @@ function renderChart(data, viewType) {
         return;
     }
 
-    var bins = d3.bin().thresholds(8)(values);
+    var bins = d3.bin().thresholds(12)(values);
 
     const xScale = d3.scaleBand()
         .domain(bins.map(bin => `${(bin.x0 || 0).toFixed(1)} - ${(bin.x1 || 0).toFixed(1)}`))

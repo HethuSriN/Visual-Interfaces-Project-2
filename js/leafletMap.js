@@ -10,18 +10,17 @@ class LeafletMap {
       parentElement: _config.parentElement,
     }
     this.data = _data;
+    this.soundEnabled = false; // Default: sound is OFF
     this.initVis();
   }
-  
   initVis() {
     let vis = this;
-    let soundEnabled = false;  // Default: sound is OFF
-
+    // let soundEnabled = false;  
     document.getElementById('sound-toggle').addEventListener('click', () => {
-      soundEnabled = !soundEnabled;  // Flip the state
+      vis.soundEnabled = !vis.soundEnabled;  // Flip the state
     
       // Update button label
-      const label = soundEnabled ? '🔈 Sound On' : '🔇 Sound Off';
+      const label = vis.soundEnabled ? '🔈 Sound On' : '🔇 Sound Off';
       document.getElementById('sound-toggle').textContent = label;
     });
   
@@ -180,7 +179,7 @@ class LeafletMap {
       .attr("r", d => Math.max(2, d.mag * 1.5))
       .on('mouseover', function(event, d) {
         // Only play sound if enabled
-        if (soundEnabled) {
+        if (vis.soundEnabled) {
           // Play sound for the earthquake
           vis.playEarthquakeSound(d); // Call the function to play sound based on earthquake data
       }

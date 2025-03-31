@@ -7,11 +7,47 @@ Promise.all([
   d3.csv('data/2025quake.csv'),
   d3.csv('data/2024_02-2023_06.csv'),
   d3.csv('data/2023_06-2022_10.csv'),
-  d3.csv('data/2022_10-2022_01.csv')
-]).then(([data1, data2, data3, data4, data5]) => {
+  d3.csv('data/2022_10-2022_01.csv'),
+  d3.csv('data/2021_12-2021_4.csv'),
+  d3.csv('data/2021_04-2020_08.csv'),
+  d3.csv('data/2020_08-2020_01.csv'),
+  d3.csv('data/2019_12-2019_04.csv'),
+  d3.csv('data/2019_04-2018_08.csv'),
+  d3.csv('data/2018_08-2018_04.csv'),
+  d3.csv('data/2018_04-2018_01.csv'),
+  d3.csv('data/2017.csv'),
+  d3.csv('data/2016.csv'),
+  d3.csv('data/2015.csv'),
+  d3.csv('data/2014_12-2014_04.csv'),
+  d3.csv('data/2014_04-2014_01.csv'),
+  d3.csv('data/2013.csv'),
+  d3.csv('data/2012.csv'),
+  d3.csv('data/2011_01-2011_10.csv'),
+  d3.csv('data/2010_12-2010_04.csv'),
+  d3.csv('data/2010_03-2010-01.csv'),
+  d3.csv('data/2009.csv'),
+  d3.csv('data/2008_12-2008_06.csv'),
+  d3.csv('data/2008_05-2008_01.csv'),
+  d3.csv('data/2007_12-2007_06.csv'),
+  d3.csv('data/2007_05-2007_01.csv'),
+  d3.csv('data/2006_12-2006_06.csv'),
+  d3.csv('data/2006_05-2006_01.csv'),
+  d3.csv('data/2005_12-2005_06.csv'),
+  d3.csv('data/2005_05-2005_01.csv'),
+  d3.csv('data/2004_12-2004_06.csv'),
+  d3.csv('data/2004_05-2004_01.csv'),
+]).then(([data1, data2, data3, data4, data5, data6, data7, data8, data9, data10,
+  data11, data12, data13, data14, data15, data16, data17, data18, data19, data20,
+  data21, data22, data23, data24, data25, data26, data27, data28, data29, data30,
+  data31, data32
+
+]) => {
 
   // Combine datasets (append data)
-  combinedData = [...data1, ...data2, ...data3, ...data4, ...data5];
+  combinedData = [...data1, ...data2, ...data3, ...data4, ...data5, ...data6, ...data7, ...data8, ...data9, ...data10,
+    ...data11, ...data12, ...data13, ...data14, ...data15, ...data16, ...data17, ...data18, ...data19, ...data20,
+    ...data21, ...data22, ...data23, ...data24, ...data25, ...data26, ...data27, ...data28, ...data29, ...data30,
+    ...data31, ...data32];
   window.currentFilteredData = combinedData;
 
   // Now initialize totalFrames after the data is loaded
