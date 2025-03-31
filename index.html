@@ -1,110 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Interactive Earthquake Map</title>
-    <link rel="icon" href="data:;base64,iVBORwOKGO=" />
-    <link rel="stylesheet" href="css/leaflet.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌍 Earthquake Data Visualization</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 </head>
 
 <body>
-    <h1>🌍 Earthquake Data Visualization</h1>
+  <h1>🌍 Earthquake Data Visualization</h1>
 
-    <!-- Map Controls -->
+  <!-- Top Controls -->
+  <div id="animation-controls">
     <div id="map-controls">
-        <label for="map-dropdown"><strong>Select Map Background:</strong></label>
-        <select id="map-dropdown">
-            <option value="WorldTerrainMap">World Terrain Map</option>
-            <option value="OpenTopoMap">OpenTopoMap</option>
-            <option value="Cyclosm">Cyclosm</option>
-            <option value="ESRI World Imagery">ESRI World Imagery</option>
-            <option value="USGS US TOPO">Usgs US Topo Map</option>
-        </select>
+      <label for="map-dropdown"><strong>Select Map Background:</strong></label>
+      <select id="map-dropdown">
+        <option value="WorldTerrainMap">World Terrain Map</option>
+        <option value="OpenTopoMap">OpenTopoMap</option>
+        <option value="Cyclosm">Cyclosm</option>
+        <option value="ESRI World Imagery">ESRI World Imagery</option>
+        <option value="USGS US TOPO">USGS US Topo Map</option>
+      </select>
     </div>
 
-    <!-- Animation Controls -->
-    <div id="animation-controls">
-        <button id="start-animation">Start Animation</button>
-        <button id="stop-animation" style="display: none;">Stop Animation</button>
-        
-        <label for="animation-speed">Animation Speed (ms per frame):</label>
-        <input type="number" id="animation-speed" value="200" min="50" max="2000" step="50" />
-    </div>
+    <button id="start-animation">Start Animation</button>
+    <button id="stop-animation" style="display: none;">Stop Animation</button>
 
-    <!-- Timeline to select the range -->
-    <!-- <input type="range" id="timeline" min="0" max="100" value="0" step="1" /> -->
-    <div id="timeline-container">
-        <input type="range" id="timeline" min="0" max="100" step="1" value="0">
-        <div id="timeline-progress"> </div>  Time Line View Slider
-      </div>
+    <label for="animation-speed">Animation Speed (ms per frame):</label>
+    <input type="number" id="animation-speed" value="200" min="50" max="2000" step="50" />
 
-      
-    <!-- Filter Controls -->
     <button id="reset-button">Reset Filters</button>
+    <button id="sound-toggle">🔇 Sound Off</button>
+  </div>
 
-    <button id="sound-toggle">🔈 Sound Off</button>
+  <!-- Timeline -->
+  <div id="timeline-container">
+    <input type="range" id="timeline" min="0" max="100" step="1" value="0" />
+    <div id="timeline-progress"></div> Time Line View Slider
+  </div>
 
-    <!-- Earthquake Map -->
+  <!-- Main Layout -->
+  <div id="main-container">
+    <!-- Map Section -->
     <div id="my-map"></div>
 
-   <div id = "charts-container">
+    <!-- Metrics Panel -->
+    <div id="metrics-panel">
+      <div id="location-stats">
+        <label for="impact-metric"><strong>Most Affected Location By:</strong></label>
+        <select id="impact-metric">
+          <option value="count">Number of Earthquakes</option>
+          <option value="average">Average Magnitude</option>
+          <option value="energy">Estimated Energy Released</option>
+        </select>
+        <div id="top-location" style="margin-top: 10px;">
+          Top Location: <span id="location-value">Loading...</span>
+        </div>
+      </div>
 
-     <!-- Visualizations Container -->
-     <div id="chart-box">
-        <!-- Heatmap Controls -->
-   <div id="controls">
-       <label for="binning-select">Select Binning Interval:</label>
-       <select id="binning-select">
-           <option value="day">Daily</option>
-           <option value="week">Weekly</option>
-           <option value="month" selected>Monthly</option>
-           <option value="year">Yearly</option> <!-- Added Yearly Bin Option -->
-       </select>
-   </div>
-       <!-- Heatmap -->
-       <svg id="heatmap"></svg>
-       <div id="HeatMap-tooltip" class="HeatMap-tooltip"></div>
-       
-   </div>
-<div id = "chart-box">
-   <div id="controls">
-       <label for="view-select"><strong>View Earthquake Data By:</strong></label>
-       <select id="view-select">
-           <option value="magnitude">Magnitude</option>
-           <option value="duration">Duration</option>
-           <option value="depth">Depth</option>
-       </select>
-   </div>
-    <!-- Quake Chart -->
-   <svg id="quake-chart"></svg>
-   <div id="chart-tooltip" class="chart-tooltip"></div>
-   </div>
-
-   </div>
-
-   <div id="chart-row">
-    <!-- Total Earthquakes Count Display -->
-    <div id="total-count-container" style="font-size: 24px; font-weight: bold; text-align: center; margin-top: 20px;">
+      <div id="total-count-container">
         Total Earthquakes: <span id="total-earthquakes">0</span>
-    </div>
+      </div>
 
-    <div id="average-magnitude" style="font-size: 24px; font-weight: bold; margin-top: 20px;">
+      <div id="average-magnitude">
         Average Magnitude: <span id="avg-magnitude-value">0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div id="charts-container">
+    <!-- Heatmap Box -->
+    <div class="chart-box">
+      <div id="controls">
+        <label for="binning-select">Select Binning Interval:</label>
+        <select id="binning-select">
+          <option value="day">Daily</option>
+          <option value="week">Weekly</option>
+          <option value="month" selected>Monthly</option>
+          <option value="year">Yearly</option>
+        </select>
+      </div>
+      <svg id="heatmap"></svg>
+      <div id="HeatMap-tooltip" class="tooltip"></div>
     </div>
 
+    <!-- Chart Box -->
+    <div class="chart-box">
+      <div id="controls">
+        <label for="view-select"><strong>View Earthquake Data By:</strong></label>
+        <select id="view-select">
+          <option value="magnitude">Magnitude</option>
+          <option value="duration">Duration</option>
+          <option value="depth">Depth</option>
+        </select>
+      </div>
+      <svg id="quake-chart"></svg>
+      <div id="chart-tooltip" class="chart-tooltip"></div>
     </div>
+  </div>
 
-    <!-- Script Files -->
-    <script src="js/d3.v6.min.js"></script>
-    <script src="js/leaflet.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/leafletMap.js"></script>
-    <script src="js/quakeChart.js"></script>
-    <script src="js/quakeHeatmap.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
-    <div id="tooltip"></div>
+  <!-- Tooltip Element -->
+  <div id="tooltip"></div>
+
+  <!-- Scripts -->
+  <script src="js/d3.v6.min.js"></script>
+  <script src="js/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/leafletMap.js"></script>
+  <script src="js/quakeChart.js"></script>
+  <script src="js/quakeHeatmap.js"></script>
 </body>
 </html>
