@@ -230,6 +230,8 @@ class LeafletMap {
 
   updateMap(filteredData) {
     let vis = this;
+    const predictions = computePredictionZones(filteredData);
+    initMiniGlobe(predictions.slice(0, 100)); // Show only 100 for performance
   
     // Clear previous points
     vis.svg.selectAll('circle').remove();

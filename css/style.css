@@ -131,7 +131,7 @@ h1 {
   justify-content: center;
   gap: 20px;
   padding: 30px;
-  max-width: 3000px;
+  max-width: 2000px;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -188,3 +188,90 @@ h1 {
   font-size: 14px;
   display: none;
 }
+
+.axis-label {
+  font-size: 12px;
+  fill: black;
+  font-weight: bold;
+  font-family: 'Arial', sans-serif;
+}
+
+#mini-globe {
+  width: 250px;
+  height: 250px;
+  display: block;
+  margin: 10px auto;
+}
+
+#globe-tooltip {
+  position: absolute;
+  background-color: white;
+  padding: 8px 12px;
+  border: 1px solid #0078A8;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#help-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #0078A8;
+  color: #fff;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+  text-align: center;
+  line-height: 35px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+#help-tooltip {
+  position: fixed;
+  right: 40px;
+  bottom: 70px;
+  width: 300px;
+  background: #fff;
+  border: 2px solid #0078A8;
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 14px;
+  color: #333;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#help-tooltip h3 {
+  color: #0078A8;
+  margin-top: 0;
+}
+
+#help-tooltip ul {
+  padding-left: 18px;
+}
+
+#help-tooltip li {
+  margin-bottom: 8px;
+}
+
+#help-tooltip button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #0078A8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+

@@ -158,11 +158,30 @@ function renderHeatmap(data, binningInterval, leafletMap) {
 
     chart.append("g").call(d3.axisLeft(yScale));
 
+    // X Axis Label
+    chart.append("text")
+        .attr("class", "axis-label")
+        .attr("x", width / 2)
+        .attr("y", height + 50)
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text(`Time (${binningInterval.charAt(0).toUpperCase() + binningInterval.slice(1)})`);
+
+    // Y Axis Label
+    chart.append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -50)
+        .attr("text-anchor", "middle")
+        .attr("fill", "black")
+        .style("font-weight", "bold")
+        .text("Number of Earthquakes");
 
 
     // --- LEGEND BELOW CHART ---
     const legendWidth = 300;
-    const legendHeight = 15;
+    const legendHeight = 65;
 
     const legendScale = d3.scaleLinear()
         .domain([0, d3.max(binnedData, d => d[1].count)])

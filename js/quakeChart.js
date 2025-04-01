@@ -125,6 +125,8 @@ function renderChart(data, viewType) {
         .attr("x", width / 2)
         .attr("y", height + 60)
         .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .style("font-size", "12px")
         .text(xAxisLabel);
 
     chart.append("text")
@@ -132,6 +134,8 @@ function renderChart(data, viewType) {
         .attr("y", -50)
         .attr("transform", "rotate(-90)")
         .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .style("font-size", "12px")
         .text("Frequency");
 }
 
