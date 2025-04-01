@@ -47,7 +47,8 @@ Promise.all([
   combinedData = [...data1, ...data2, ...data3, ...data4, ...data5, ...data6, ...data7, ...data8, ...data9, ...data10,
     ...data11, ...data12, ...data13, ...data14, ...data15, ...data16, ...data17, ...data18, ...data19, ...data20,
     ...data21, ...data22, ...data23, ...data24, ...data25, ...data26, ...data27, ...data28, ...data29, ...data30,
-    ...data31, ...data32];
+    ...data31, ...data32
+  ];
   window.currentFilteredData = combinedData;
 
   // Now initialize totalFrames after the data is loaded
@@ -68,7 +69,9 @@ Promise.all([
   renderChart(combinedData, 'magnitude');
   updateTopLocation(combinedData);
 
-
+  const predictions = computePredictionZones(combinedData);
+  initMiniGlobe(predictions.slice(0, 100)); // Show only 100 for performance
+  
   // Function to update total earthquake count based on current filtered data
   function updateTotalCount(filteredData) {
     const totalCount = filteredData.length;
@@ -287,3 +290,11 @@ function updateTimelineBasedOnData(filteredData) {
   timeline.max = maxDate.getTime();
   timeline.value = minDate.getTime();  // Set the timeline's value to the start date
 }
+
+document.getElementById('help-button').addEventListener('click', () => {
+  document.getElementById('help-tooltip').classList.toggle('hidden');
+});
+
+document.getElementById('close-help').addEventListener('click', () => {
+  document.getElementById('help-tooltip').classList.add('hidden');
+});

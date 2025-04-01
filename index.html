@@ -35,6 +35,26 @@
     <button id="reset-button">Reset Filters</button>
     <button id="sound-toggle">🔇 Sound Off</button>
   </div>
+  <div id="help-button" title="Click to view features" style="font-family: italic;"><strong>i</strong></div>
+
+<div id="help-tooltip" class="hidden">
+  <h3>🌍 Earthquake Dashboard Features</h3>
+  <ul>
+    <li><strong>🗺️ Map View:</strong> Interactive earthquake markers with zoom, pan, and location-based filtering.</li>
+    <li><strong>📊 Chart View:</strong> Bar charts to visualize frequency by magnitude, depth, or duration.</li>
+    <li><strong>🔥 Heatmap:</strong> Temporal heatmap showing earthquake density over time (day, week, month, year).</li>
+    <li><strong>🌐 Mini Globe:</strong> A rotating Earth highlighting predicted future high-risk earthquake zones.</li>
+    <li><strong>🖱️ Tooltips:</strong> Hover over map or chart elements to view detailed information.</li>
+    <li><strong>🟦 Filters:</strong> Brush over the heatmap timeline or draw rectangles on the map to filter data.</li>
+    <li><strong>📈 Stats Panel:</strong> Shows total quakes, average magnitude of the most affected region, and predicted risks.</li>
+    <li><strong>🔊 Sound Toggle:</strong> Click "Sound On/Off" to enable or disable quake sound effects.</li>
+    <li><strong>🎞️ Animation Controls:</strong> Use "Start/Stop Animation" to animate quakes over time.</li>
+    <li><strong>⚙️ Animation Speed:</strong> Customize playback speed (in milliseconds per frame).</li>
+    <li><strong>📅 Timeline Slider:</strong> Use the timeline range slider to explore quake data chronologically.</li>
+    <li><strong>🗺️ Map Backgrounds:</strong> Switch between multiple map tiles like Terrain, Topo, etc.</li>
+  </ul>
+  <button id="close-help">Close</button>
+</div>
 
   <!-- Timeline -->
   <div id="timeline-container">
@@ -65,9 +85,17 @@
         Total Earthquakes: <span id="total-earthquakes">0</span>
       </div>
 
-      <div id="average-magnitude">
-        Average Magnitude: <span id="avg-magnitude-value">0.0</span>
+      <div class="chart-box" style="text-align:center;">
+        <div id="mini-globe-container">
+          <label><strong>🔮 Predicted High-Risk Zones</strong></label>
+          <svg id="mini-globe"></svg>
+        </div>
+
+        <!-- Tooltip for globe points -->
+        <div id="globe-tooltip" class="tooltip" style="display: none;"></div>
+
       </div>
+      
     </div>
   </div>
 
@@ -76,7 +104,7 @@
     <!-- Heatmap Box -->
     <div class="chart-box">
       <div id="controls">
-        <label for="binning-select">Select Binning Interval:</label>
+        <label for="binning-select"><strong>Select Binning Interval:</strong></label>
         <select id="binning-select">
           <option value="day">Daily</option>
           <option value="week">Weekly</option>
@@ -109,11 +137,13 @@
   <!-- Scripts -->
   <script src="js/d3.v6.min.js"></script>
   <script src="js/leaflet.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
   <script src="js/main.js"></script>
   <script src="js/leafletMap.js"></script>
   <script src="js/quakeChart.js"></script>
   <script src="js/quakeHeatmap.js"></script>
+  <script src="js/miniGlobe.js"></script>
 </body>
 </html>
