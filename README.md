@@ -12,37 +12,24 @@ Viraj Kishore Charakanam.
 
 Saad Ahmed Mohammed.
 
-\## 📑 Table of Contents
+## 📑 Table of Contents
 
-1\. \[🌍 Project Title\](#project-title)
+1. [Project Title](#project-title)
+2. [Motivation](#motivation)
+3. [Data](#data)
+4. [Visualization Components](#visualization-components)
+   - [Interactive Map](#1-interactive-map)
+   - [Heatmap Timeline](#2-heatmap-timeline)
+   - [Bar Chart (Magnitude/Depth/Duration)](#3-bar-chart-magnitudedepthduration)
+   - [Mini Globe](#4-mini-globe)
+   - [Dashboard Stats Panel](#5-dashboard-stats-panel)
+   - [Controls](#6-controls)
+5. [Design Sketches & Justification](#design-sketches--justification)
+6. [Discoveries & Insights](#discoveries--insights)
+7. [Technical Process](#technical-process)
+8. [Demo Video](#demo-video)
+9. [Team Contributions](#team-contributions)
 
-2\. \[🧠 Motivation\](#motivation)
-
-3\. \[📊 Data\](#data)
-
-4\. \[💡 Visualization Components\](#visualization-components)
-
-\- \[🔎 Interactive Map\](#1-interactive-map)
-
-\- \[🔥 Heatmap Timeline\](#2-heatmap-timeline)
-
-\- \[📊 Bar Chart\](#3-bar-chart-magnitudedepthduration)
-
-\- \[🌐 Mini Globe\](#4-mini-globe)
-
-\- \[📋 Dashboard Stats Panel\](#5-dashboard-stats-panel)
-
-\- \[🎛️ Controls\](#6-controls)
-
-5\. \[✍️ Design Sketches & Justification\](#design-sketches--justification)
-
-6\. \[🔍 Discoveries & Insights\](#discoveries--insights)
-
-7\. \[🛠️ Technical Process\](#technical-process)
-
-8\. \[🎥 Demo Video\](#demo-video)
-
-9\. \[👥 Team Contributions\](#team-contributions)
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
