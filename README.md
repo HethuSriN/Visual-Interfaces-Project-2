@@ -158,8 +158,8 @@ Using the dashboard, we were able to:
 
 **🚀 Run & Access:**
 
-- Code Repository: https://visual-interfaces-project-2.vercel.app/
-- Live Link: https://github.com/HethuSriN/Visual-Interfaces-Project-2
+- Live Link: https://visual-interfaces-project-2.vercel.app/
+- Code Repository: https://github.com/HethuSriN/Visual-Interfaces-Project-2
 
 ---
 
