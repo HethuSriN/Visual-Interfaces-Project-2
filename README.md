@@ -165,7 +165,7 @@ Using the dashboard, we were able to:
 
 ## 🎥 Demo Video
 
-**Link provided**
+**Link provided:https://drive.google.com/file/d/1Eza_gtov8YmFT35_lD3_rETAmdBiUW3Y/view**
 
 - Explains each feature with captions and voiceover.
 - Shows real-time brushing, map filtering, and globe spinning.
