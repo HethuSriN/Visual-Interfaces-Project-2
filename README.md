@@ -33,7 +33,7 @@ Saad Ahmed Mohammed.
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-🧠 Motivation
+## 🧠 Motivation
 
 This interactive visualization platform is designed to help users explore, understand, and analyze earthquake patterns around the world. From seismologists and geoscientists to general enthusiasts, users can:
 
@@ -49,7 +49,7 @@ The dashboard is intended to make complex seismic data engaging, intuitive, and 
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-📊 Data
+## 📊 Data
 
 Source: The datasets have been downloaded from the below provided link. Here the dataset has been downloaded for 20 years but the real challenge was the website only allowed to download only 20000 records at a time.
 
@@ -75,7 +75,7 @@ The data is aggregated from various years to provide comprehensive global covera
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-💡 Visualization Components
+## 💡 Visualization Components
 
 🔎 1. Interactive Map
 
@@ -89,7 +89,7 @@ The data is aggregated from various years to provide comprehensive global covera
 
 •Tooltip shows magnitude, location, depth, and time.
 
-🔥 2. Heatmap Timeline
+## 🔥 2. Heatmap Timeline
 
 •Built with D3.js.
 
@@ -97,13 +97,13 @@ The data is aggregated from various years to provide comprehensive global covera
 
 •Brushing on this heatmap filters all views.
 
-📊 3. Bar Chart (Magnitude/Depth/Duration)
+## 📊 3. Bar Chart (Magnitude/Depth/Duration)
 
 •Selectable chart view.
 
 •Bins earthquakes and allows users to click bars to filter other views.
 
-🌐 4. Mini Globe
+## 🌐 4. Mini Globe
 
 •Orthographic projection with rotating animation.
 
@@ -111,7 +111,7 @@ The data is aggregated from various years to provide comprehensive global covera
 
 •Tooltip on hover shows latitude, longitude, and risk score.
 
-📋 5. Dashboard Stats Panel
+## 📋 5. Dashboard Stats Panel
 
 •Shows:
 
@@ -143,7 +143,7 @@ All views are tightly coupled. Any interaction (e.g. brushing, selecting, filter
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-✍️ Design Sketches & Justification
+## ✍️ Design Sketches & Justification
 
 •Card-Based Layout: Keeps visual balance between map, charts, and statistics.
 
@@ -157,7 +157,7 @@ All views are tightly coupled. Any interaction (e.g. brushing, selecting, filter
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-🔍 Discoveries & Insights
+## 🔍 Discoveries & Insights
 
 Using the dashboard, we were able to:
 
@@ -173,9 +173,9 @@ Using the dashboard, we were able to:
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-🛠️ Technical Process
+## 🛠️ Technical Process
 
-📚 Libraries Used:
+## 📚 Libraries Used:
 
 •D3.js (v6)
 
@@ -187,7 +187,7 @@ Using the dashboard, we were able to:
 
 •Howler.js (for sound effects)
 
-🧱 Code Structure:
+## 🧱 Code Structure:
 
 •main.js: Orchestrates all data loading and initial renderings.
 
@@ -201,7 +201,7 @@ Using the dashboard, we were able to:
 
 •style.css: Styling and layout.
 
-🚀 Run & Access:
+## 🚀 Run & Access:
 
 •Code Repository: https://visual-interfaces-project-2.vercel.app/
 
@@ -209,7 +209,7 @@ Using the dashboard, we were able to:
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-🎥 Demo Video
+## 🎥 Demo Video
 
 Link provided
 
@@ -221,7 +221,7 @@ Link provided
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-👥 Team Contributions
+## 👥 Team Contributions
 
 •Hethu Sri Nadipudi
 
