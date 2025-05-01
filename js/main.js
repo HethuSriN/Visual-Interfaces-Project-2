@@ -178,7 +178,7 @@ Promise.all([
 // Update Total Count on View Change (Magnitude, Duration, Depth)
 d3.select('#view-select').on('change', function() {
   const selectedView = d3.select(this).property('value');
-  renderMagnitudeChart(combinedData, selectedView); // Re-render chart based on view
+  renderChart(combinedData, selectedView); // Re-render chart based on view
   updateTotalCount(combinedData);  // Update count after re-render
 });
 
